@@ -26,20 +26,21 @@ pip install djangorestframework
 ```py
 pip install django-extensions djangorestframework djangorestframework-jsonapi \
 inflection python-dotenv sqlparse
+```
 
 Django utiliza SQLite3 por defecto facilitar el desarrolo, en este proyecto se
 utliza MariaDB, pero es opcional.
 
-# MariaDB
+```py
 pip install mysqlclient
 ```
 
 ### Inicio del proyecto
 
+**Creación del proyecto Django**
+
 ```sh
 mkdir backend
-
-# Creación del proyecto Django
 django-admin startproject drf_course backend
 ```
 
@@ -58,7 +59,7 @@ python manage.py startapp core
 
 Archivo [./backend/drf_course/settings.py](./backend/drf_course/settings.py).
 
-Importar `.env` usando *python-dotenv*.
+Importar variables de entorno usando *python-dotenv* del archivo en `.backend/.env`.
 
 ```py
 from dotenv import load_dotenv
@@ -120,7 +121,7 @@ REST_FRAMEWORK = {
 ```
 
 En caso de utilizar MariaDB, cambiar la declaración de *DATABASES*, para usar
-las variables de entorno declaradas en [./backend/env](./backend/.env)
+las variables de entorno declaradas en `./backend/.env`
 
 ```py
 DATABASES = {
@@ -151,3 +152,111 @@ urlpatterns += [
 ]
 ```
 
+#### Migrar y probar aplicación
+
+```sh
+python manage.py migrate
+python manage.py runserver
+```
+
+### Creación del primer endoint
+
+Creación de endpoint de ***contacto***, para que un usuario pueda enviar su
+*nombre*, *email*, y *mensaje* al backend.
+
+Para ello se requiere:
+
+- Un modelo que almacene la captura de los datos entrantes.
+- Un serializador que procese los datos entrantes del usuario y envíe un
+mensaje de respuesta.
+- Una vista que encapsule las llamadas a los métodos REST HTTP comunes.
+- Una ruta `/url` llamada `/contact/`.
+
+
+#### Model
+
+[./backend/core/models.py](./backend/core/models.py)
+
+Utiliza modelos abstractos del modulo
+*django_extensions*; `TimeStampedModel` (campos como *created*), `ActivatorModel`
+(campos *status*, *activated date*, *deactivated date* ), `TitleDescriptionModel`
+(campos de texto *textfield* y *charfield*).
+Clase **Contact** hereda de estos modelos. Todas las tablas del proyecto tendrán
+un campo *uuid* como campo id. Además de un campo *email* de Django. Y método de
+representación del modelo en cadena de texto.
+
+**Modelo abstracto**
+
+Para implementar *uuid* en vez de *id* como campo identificador en todos los
+modelos, se crea el modulo [model_abstracts.py](./backend/utils/model_abstracts.py)
+que hereda de *models* de *django.db* y utliza el campo *id*. Utiliza el campo *UUID*.
+
+#### Serializer
+
+Para convertir los datos de entrada *json* en tipos de datos de python, y
+viceversa, se crea el archivo [./backend/core/serializer.py](./backend/core/serializer.py)
+en la app *core*. Este hereda de la clase *serializers* del modulo *rest_framework*
+e implementa sus campos (*CharField* *EmailField*).
+
+#### View
+
+[./backend/core/views.py](./backend/core/views.py)
+
+El uso de la clase *APIView* es muy similar al una vista regular, la petición
+entrante es enviada a un manejador apropiado para el método, como `.get()` o
+`.post()`. Además se pueden establecer otros atributos en la clase que controla
+varios aspectos de las normas de la API.
+
+#### Route & URL
+
+[./drf_course/urls.py](./drf_course/urls.py)
+
+El framework REST añade soporte para ruteo automático de URLs a Django y provee
+al programador de una simple, rápida y consistente forma de enlazar la lógica
+de la vista a un conjunto de URLs.
+
+#### Registrar app en panel de administración
+
+Importar modelo y registrar en [./backend/core/admin.py](./backend/core/admin.py).
+
+Crear las migraciones y migrar.
+
+```py
+python manage.py makemigrations
+python manage.py migrate
+```
+Finalmente, crear **super usuario**.
+
+```py
+python manage.py createsuperuser
+```
+
+#### Probar API
+
+```sh
+http http://127.0.0.1:8000/contact/ name="DevFzn" message="prueba" email="devfzn@mail.com"
+
+HTTP/1.1 200 OK
+Allow: POST, OPTIONS
+Content-Length: 155
+Content-Type: application/vnd.api+json
+Cross-Origin-Opener-Policy: same-origin
+Date: Wed, 29 Mar 2023 20:05:32 GMT
+Referrer-Policy: same-origin
+Server: WSGIServer/0.2 CPython/3.10.10
+Vary: Accept, Cookie
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+
+{
+    "data": {
+        "attributes": {
+            "email": "devfzn@mail.com",
+            "message": "prueba",
+            "name": "DevFzn"
+        },
+        "id": "bef5e90c-821a-4d04-98ef-c0a0adde5ec1",
+        "type": "ContactAPIView"
+    }
+}
+```
