@@ -479,7 +479,7 @@ ej. **HTTPie**
 
 ```sh
 http post http://127.0.0.1:8000/api-token-auth/ username=<tu-usuario> \
-                                                  password=<tu-password>
+                                                password=<tu-password>
 ```
 
 ```http
@@ -499,7 +499,7 @@ X-Frame-Options: DENY
 }
 ```
 
-## Ecommerce Model
+### Ecommerce Model
 
 Esta app hace uso obligatorio del token de autentificación. Solo usuarios
 autentificados pueden acceder a este endpoint.
@@ -517,4 +517,23 @@ de [serializers](./backend/ecommerce/serializers.py).
 Registro de app en el panel de [administración](./backend/ecommerce/admin.py).
 
 Migraciones `./manage.py makemigrations` y `./manage.py migrate`.
+
+### Ecommerce Views y URLs
+
+Creación de [views](./backend/ecommerce/views.py) de la app, se utiliza
+`IsAuthenticated` del framework.
+Se agrega conjunto de vistas genericas de la app en [urls.py](./backend/drf_course/urls.py)
+del sitio, registrandolas en el `router`.
+
+```py
+...
+from ecommerce import views as ecommerce_views
+...
+
+router = routers.DefaultRouter()
+router.register(r'item', ecommerce_views.ItemViewSet, basename='item')
+router.register(r'order', ecommerce_views.OrderViewSet, basename='order')
+
+...
+```
 
