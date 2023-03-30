@@ -5,7 +5,7 @@ from rest_framework import status
 
 class ContactTestCase(APITestCase):
     """
-    Test suite for Contact
+    Test suite para Contact
     """
     def setUp(self):
         self.client = APIClient()

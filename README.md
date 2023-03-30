@@ -285,39 +285,6 @@ Se puede utilizar la shell de Django para chequear la nueva entrada en Contacto
 'DevFzn'
 ```
 
-#### Jerarquia de directorios
-
-```txt
-📂️ .
-├── 📂️ backend
-│   ├── 📂️ core
-│   │   ├── 📂️ migrations
-│   │   │   ├── 0001_initial.py
-│   │   │   └── __init__.py
-│   │   ├── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── models.py
-│   │   ├── serializers.py
-│   │   ├── tests.py
-│   │   └── views.py
-│   ├── 📂️ drf_course
-│   │   ├── __init__.py
-│   │   ├── asgi.py
-│   │   ├── settings.py
-│   │   ├── urls.py
-│   │   └── wsgi.py
-│   ├── 📂️ utils
-│   │   ├── __init__.py
-│   │   └── model_abstracts.py
-│   ├── .env
-│   └── manage.py
-├── .gitignore
-├── env.template
-├── README.md
-└── requirements.txt
-```
-
 ## Tests
 
 Creación de pruebas en [./backend/core/tests.py](./backend/core/tests.py).
@@ -327,14 +294,14 @@ Utilizando las clases `APIClient` que proporciona un cliente incorporado y
 #### Test suite para Contact
 
 0. test setup
-1. test para método create
-2. test para método create cuando nombre no está en los datos
-3. test para método create cuando nombre está en blanco
-4. test para método create cuando mensaje no está en los datos
-5. test para método create cuando mensaje está en blanco
-6. test para método create cuando email no está en los datos
-7. test para método create cuando email está en blanco
-8. test para método create cuando email no es un email
+1. test ContactViewSet para método create
+2. test ContactViewSet para método create cuando nombre no está en los datos
+3. test ContactViewSet para método create cuando nombre está en blanco
+4. test ContactViewSet para método create cuando mensaje no está en los datos
+5. test ContactViewSet para método create cuando mensaje está en blanco
+6. test ContactViewSet para método create cuando email no está en los datos
+7. test ContactViewSet para método create cuando email está en blanco
+8. test ContactViewSet para método create cuando email no es un email
 
 Correr test `./manage.py test`
 
@@ -537,3 +504,79 @@ router.register(r'order', ecommerce_views.OrderViewSet, basename='order')
 ...
 ```
 
+### Ecommerce Tests
+
+Creación de [test](./backend/ecommerce/tests.py) unitarios para la aplicación.
+
+0. test setup
+1. test ItemsViewSet método list
+2. test ItemsViewSet método retrieve
+3. test Item.check_stock cuando order.quantity > item.stock
+4. test Item.check_stock cuando order.quantity == item.stock
+5. test Item.check_stock cuando order.quantity < item.stock
+6. test OrdersViewSet método create cuando order.quantity > item.stock
+7. test OrdersViewSet método create cuando order.quantity < item.stock
+8. test OrdersViewSet método create cuando order.quantity == item.stock
+9. test OrdersViewSet método list
+10. test OrdersViewSet método retrieve
+
+Correr tests `./manage.py test`.
+
+```py
+Found 18 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+..................
+----------------------------------------------------------------------
+Ran 18 tests in 2.248s
+
+OK
+Destroying test database for alias 'default'...
+```
+
+----
+
+### Jerarquia de directorios
+
+```txt
+📂️ .
+├── 📂️ backend
+│   ├── 📂️ core
+│   │   ├── 📂️ migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── tests.py
+│   │   └── views.py
+│   ├── 📂️ drf_course
+│   │   ├── __init__.py
+│   │   ├── asgi.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── 📂️ ecommerce
+│   │   ├── 📂️ migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── signals.py
+│   │   ├── tests.py
+│   │   └── views.py
+│   ├── 📂️ utils
+│   │   ├── __init__.py
+│   │   └── model_abstracts.py
+│   ├── .env
+│   └── manage.py
+├── .gitignore
+├── env.template
+├── README.md
+└── requirements.txt
+```
