@@ -35,7 +35,7 @@ utliza MariaDB, pero es opcional.
 pip install mysqlclient
 ```
 
-### Inicio del proyecto
+## Inicio del proyecto
 
 **Creación del proyecto Django**
 
@@ -52,7 +52,7 @@ La segunda será *ecommerce*. Esta contendrá la ĺógica del endpoint de los
 
 ```sh
 cd backend
-python manage.py startapp core
+./manage.py startapp core
 ```
 
 ### Editar configuración del proyecto
@@ -155,8 +155,8 @@ urlpatterns += [
 #### Migrar y probar aplicación
 
 ```sh
-python manage.py migrate
-python manage.py runserver
+./manage.py migrate
+./manage.py runserver
 ```
 
 ### Creación del primer endoint
@@ -222,20 +222,33 @@ Importar modelo y registrar en [./backend/core/admin.py](./backend/core/admin.py
 Crear las migraciones y migrar.
 
 ```py
-python manage.py makemigrations
-python manage.py migrate
+./manage.py makemigrations
+./manage.py migrate
 ```
 Finalmente, crear **super usuario**.
 
 ```py
-python manage.py createsuperuser
+./manage.py createsuperuser
 ```
 
-#### Probar API
+#### Prueba manual
+
+**Curl**
 
 ```sh
-http http://127.0.0.1:8000/contact/ name="DevFzn" message="prueba" email="devfzn@mail.com"
+curl -XPOST -H "Content-type: application/json" \
+    -d '{"name": "DevFzn", "message": "prueba", "email":"mail@mail.com"}' \
+    'http://127.0.0.1:8000/contact/'
+```
 
+o **Httpie**
+
+```sh
+http post http://127.0.0.1:8000/contact/ name="DevFzn" message="prueba" \
+          email="devfzn@mail.com"
+```
+
+```sh
 HTTP/1.1 200 OK
 Allow: POST, OPTIONS
 Content-Length: 155
@@ -260,3 +273,80 @@ X-Frame-Options: DENY
     }
 }
 ```
+
+Se puede utilizar la shell de Django para chequear la nueva entrada en Contacto
+
+`./manage.py shell`
+
+```py
+>>> from core.models import Contact
+>>> c = Contact.objects.last()
+>>> c.title
+'DevFzn'
+```
+
+#### Jerarquia de directorios
+
+```txt
+📂️ .
+├── 📂️ backend
+│   ├── 📂️ core
+│   │   ├── 📂️ migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── tests.py
+│   │   └── views.py
+│   ├── 📂️ drf_course
+│   │   ├── __init__.py
+│   │   ├── asgi.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── 📂️ utils
+│   │   ├── __init__.py
+│   │   └── model_abstracts.py
+│   ├── .env
+│   └── manage.py
+├── .gitignore
+├── env.template
+├── README.md
+└── requirements.txt
+```
+
+## Tests
+
+Creación de pruebas en [./backend/core/tests.py](./backend/core/tests.py).
+Utilizando las clases `APIClient` que proporciona un cliente incorporado y
+`APITestCase`, similar al *TestCase* de Django
+
+#### Test suite para Contact
+
+0. SetUp de los test
+1. test ContactViewSet método create
+2. test ContactViewSet método create cuando nombre no está en los datos
+3. test ContactViewSet método create cuando nombre está en blanco
+4. test ContactViewSet método create cuando mensaje no está en los datos
+5. test ContactViewSet método create cuando mensaje está en blanco
+6. test ContactViewSet método create cuando email no está en los datos
+7. test ContactViewSet método create cuando email está en blanco
+8. test ContactViewSet método create cuando email no es un email
+
+Correr test `./manage.py test`
+
+```py
+Found 8 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.028s
+
+OK
+Destroying test database for alias 'default'...
+```
+
