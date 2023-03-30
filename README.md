@@ -28,8 +28,8 @@ pip install django-extensions djangorestframework djangorestframework-jsonapi \
 inflection python-dotenv sqlparse
 ```
 
-Django utiliza SQLite3 por defecto facilitar el desarrolo, en este proyecto se
-utliza MariaDB, pero es opcional.
+Django utiliza SQLite3 por defecto para simplificar el desarrolo, en este proyecto
+se utliza MariaDB, pero es opcional.
 
 ```py
 pip install mysqlclient
@@ -159,10 +159,10 @@ urlpatterns += [
 ./manage.py runserver
 ```
 
-### Creación del primer endoint
+## Creación del primer endoint
 
-Creación de endpoint de ***contacto***, para que un usuario pueda enviar su
-*nombre*, *email*, y *mensaje* al backend.
+Creación de endpoint ***Contac***, para que un usuario pueda enviar su *nombre*,
+*email*, y *mensaje* al backend.
 
 Para ello se requiere:
 
@@ -173,7 +173,7 @@ mensaje de respuesta.
 - Una ruta `/url` llamada `/contact/`.
 
 
-#### Model
+### Model
 
 [./backend/core/models.py](./backend/core/models.py)
 
@@ -182,7 +182,7 @@ Utiliza modelos abstractos del modulo
 (campos *status*, *activated date*, *deactivated date* ), `TitleDescriptionModel`
 (campos de texto *textfield* y *charfield*).
 Clase **Contact** hereda de estos modelos. Todas las tablas del proyecto tendrán
-un campo *uuid* como campo id. Además de un campo *email* de Django. Y método de
+un campo *uuid* como id. Además de un campo *email* de Django. Y método de
 representación del modelo en cadena de texto.
 
 **Modelo abstracto**
@@ -191,14 +191,14 @@ Para implementar *uuid* en vez de *id* como campo identificador en todos los
 modelos, se crea el modulo [model_abstracts.py](./backend/utils/model_abstracts.py)
 que hereda de *models* de *django.db* y utliza el campo *id*. Utiliza el campo *UUID*.
 
-#### Serializer
+### Serializer
 
 Para convertir los datos de entrada *json* en tipos de datos de python, y
 viceversa, se crea el archivo [./backend/core/serializer.py](./backend/core/serializer.py)
 en la app *core*. Este hereda de la clase *serializers* del modulo *rest_framework*
 e implementa sus campos (*CharField* *EmailField*).
 
-#### View
+### View
 
 [./backend/core/views.py](./backend/core/views.py)
 
@@ -207,7 +207,7 @@ entrante es enviada a un manejador apropiado para el método, como `.get()` o
 `.post()`. Además se pueden establecer otros atributos en la clase que controla
 varios aspectos de las normas de la API.
 
-#### Route & URL
+### Route & URL
 
 [./drf_course/urls.py](./drf_course/urls.py)
 
@@ -233,7 +233,7 @@ Finalmente, crear **super usuario**.
 
 #### Prueba manual
 
-**Curl**
+**curl**
 
 ```sh
 curl -XPOST -H "Content-type: application/json" \
@@ -241,14 +241,14 @@ curl -XPOST -H "Content-type: application/json" \
     'http://127.0.0.1:8000/contact/'
 ```
 
-o **Httpie**
+o **HTTPie**
 
 ```sh
 http post http://127.0.0.1:8000/contact/ name="DevFzn" message="prueba" \
           email="devfzn@mail.com"
 ```
 
-```sh
+```http
 HTTP/1.1 200 OK
 Allow: POST, OPTIONS
 Content-Length: 155
@@ -322,19 +322,19 @@ Se puede utilizar la shell de Django para chequear la nueva entrada en Contacto
 
 Creación de pruebas en [./backend/core/tests.py](./backend/core/tests.py).
 Utilizando las clases `APIClient` que proporciona un cliente incorporado y
-`APITestCase`, similar al *TestCase* de Django
+`APITestCase`, similar al *TestCase* de Django.
 
 #### Test suite para Contact
 
-0. SetUp de los test
-1. test ContactViewSet método create
-2. test ContactViewSet método create cuando nombre no está en los datos
-3. test ContactViewSet método create cuando nombre está en blanco
-4. test ContactViewSet método create cuando mensaje no está en los datos
-5. test ContactViewSet método create cuando mensaje está en blanco
-6. test ContactViewSet método create cuando email no está en los datos
-7. test ContactViewSet método create cuando email está en blanco
-8. test ContactViewSet método create cuando email no es un email
+0. test setup
+1. test para método create
+2. test para método create cuando nombre no está en los datos
+3. test para método create cuando nombre está en blanco
+4. test para método create cuando mensaje no está en los datos
+5. test para método create cuando mensaje está en blanco
+6. test para método create cuando email no está en los datos
+7. test para método create cuando email está en blanco
+8. test para método create cuando email no es un email
 
 Correr test `./manage.py test`
 
@@ -350,3 +350,150 @@ OK
 Destroying test database for alias 'default'...
 ```
 
+## Ecommerce endpoint
+
+Este se compone de 2 endpoints, **items** y **order**. La primera se encarga
+de retornar todos los items de la tienda al llamarla, además, si se llama a
+este endpoint con una llave primaria, retorna solo ese item. Y cuando se requiera
+comprar, se utiliza el *order* endpoint, donde se pasa el item en particular.
+Se implementan validaciones para asegurar que el item esten en stock, también
+asegurar que solo usuarios autentificado puedan llamar estos endpoints.
+Esta app usa *token authentication*. Django Rest Framework facilita esta tarea.
+
+Creación de app *ecommerce*
+
+```py
+./manage.py startapp ecommerce
+```
+
+Modificar [settings](./drf_course/settings.py) del sitio, reemplazando el
+`REST_FRAMEWORK` con el siguiente código.
+> notar el nuevo `DEFAULT_AUTHENTICATION_CLASSES`.
+
+```py
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework_json_api.parsers.JSONParser',
+        ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [ # <---
+        'rest_framework.authentication.TokenAuthentication', # <---
+        ],
+    ...
+```
+
+Agregar las siguientes apps en `INSTALLED_APPS`.
+
+```py
+INSTALLED_APPS = [
+    ...
+    'rest_framework.authtoken', # <---
+    'core',
+    'ecommerce', # <---
+    ]
+```
+
+### URLs
+
+Agregar los nuevos endpoints en [urls.py](./backend/drf_course/urls.py) del sitio.
+
+```py
+# importar authtoken
+from rest_framework.authtoken.views import obtain_auth_token
+
+# agregar urls
+urlpatterns += [
+    ...
+    path('api-token-auth', obtain_auth_token),
+]
+```
+
+Cuando un usuario visite este endpoint y pase un nombre de usuario y un password
+validos, este recibirá de vuelta un *token* de autentificación. Este token esta
+enlazado con el usuario especifico.
+
+Realizar migraciones
+
+```sh
+./manage.py makemigrations
+./manage.py migrate
+```
+
+#### Signals
+
+Se requiere un mecanismo (signal) que cree un token para cada usuario que este registrado
+en la app. Este token es el que será devuelto cada vez que se llame al nuevo endopint.
+
+Para ello, crear el archivo [./backend/ecommerce/signals.py](./backend/ecommerce/signals.py).
+
+```py
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+
+@receiver(post_save, sender=User, weak=False)
+def report_uploaded(sender, instance, created, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
+```
+
+> En Django se le llama señal al código que recibe una señal de cierta tabla,
+basado en una acción (***pre-save*** o ***post-save***). Cuando se crea un
+registro en la tabla, esta envía una señal, y es interceptada por *signals*.
+En este caso, se utiliza para generar un nuevo token.
+
+
+Agregar el siguiente método en la clase `EcommerceConfig` del archivo
+[apps.py](./backend/ecommerce/apps.py) de la app.
+
+```py
+class EcommerceConfig(AppConfig):
+    ...
+
+    def ready(self):
+        import ecommerce.signals
+```
+
+Creamos otro superusuario, para que se active el disparador de la señal, y se
+cree un nuevo token para este.
+
+```sh
+./manage.py runserver
+./manage.py createsuperuser
+```
+
+Visitar [http:127.0.0.8/admin](http:127.0.0.8/admin), y verificar creación del token.
+
+Probar retorno del token a traves de la API.
+
+ej. **curl**
+
+```sh
+curl -XPOST -F 'username=<tu-usuario>' -F 'password=<tu-password>' \
+               'http://192.168.0.9:8000/api-token-auth/'
+```
+
+ej. **HTTPie**
+
+```sh
+http post http://192.168.0.9:8000/api-token-auth/ username=<tu-usuario> \
+                                                  password=<tu-password>
+```
+
+```http
+HTTP/1.1 200 OK
+Allow: POST, OPTIONS
+Content-Length: 52
+Content-Type: application/json
+Cross-Origin-Opener-Policy: same-origin
+Date: Thu, 29 Mar 2023 11:57:43 GMT
+Referrer-Policy: same-origin
+Server: WSGIServer/0.2 CPython/3.10.10
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+
+{
+    "token": "2f076a6310a244283c6902a73e07a0febc59649c"
+}
+```
