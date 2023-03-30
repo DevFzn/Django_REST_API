@@ -194,14 +194,14 @@ que hereda de *models* de *django.db* y utliza el campo *id*. Utiliza el campo *
 ### Serializer
 
 Para convertir los datos de entrada *json* en tipos de datos de python, y
-viceversa, se crea el archivo [./backend/core/serializer.py](./backend/core/serializer.py)
+viceversa, se crea el archivo [./backend/core/serializers.py](./backend/core/serializers.py)
 en la app *core*. Este hereda de la clase *serializers* del modulo *rest_framework*
 e implementa sus campos (*CharField* *EmailField*).
 
 ### View
 
 [./backend/core/views.py](./backend/core/views.py)
-
+backend
 El uso de la clase *APIView* es muy similar al una vista regular, la petición
 entrante es enviada a un manejador apropiado para el método, como `.get()` o
 `.post()`. Además se pueden establecer otros atributos en la clase que controla
@@ -209,7 +209,7 @@ varios aspectos de las normas de la API.
 
 ### Route & URL
 
-[./drf_course/urls.py](./drf_course/urls.py)
+[./backend/drf_course/urls.py](./backend/drf_course/urls.py)
 
 El framework REST añade soporte para ruteo automático de URLs a Django y provee
 al programador de una simple, rápida y consistente forma de enlazar la lógica
@@ -366,7 +366,7 @@ Creación de app *ecommerce*
 ./manage.py startapp ecommerce
 ```
 
-Modificar [settings](./drf_course/settings.py) del sitio, reemplazando el
+Modificar [settings](./backend/drf_course/settings.py) del sitio, editando
 `REST_FRAMEWORK` con el siguiente código.
 > notar el nuevo `DEFAULT_AUTHENTICATION_CLASSES`.
 
@@ -463,7 +463,8 @@ cree un nuevo token para este.
 ./manage.py createsuperuser
 ```
 
-Visitar [http:127.0.0.8/admin](http:127.0.0.8/admin), y verificar creación del token.
+Visitar [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin), y verificar
+creación del token.
 
 Probar retorno del token a traves de la API.
 
@@ -471,13 +472,13 @@ ej. **curl**
 
 ```sh
 curl -XPOST -F 'username=<tu-usuario>' -F 'password=<tu-password>' \
-               'http://192.168.0.9:8000/api-token-auth/'
+               'http://127.0.0.1:8000/api-token-auth/'
 ```
 
 ej. **HTTPie**
 
 ```sh
-http post http://192.168.0.9:8000/api-token-auth/ username=<tu-usuario> \
+http post http://127.0.0.1:8000/api-token-auth/ username=<tu-usuario> \
                                                   password=<tu-password>
 ```
 
@@ -497,3 +498,23 @@ X-Frame-Options: DENY
     "token": "2f076a6310a244283c6902a73e07a0febc59649c"
 }
 ```
+
+## Ecommerce Model
+
+Esta app hace uso obligatorio del token de autentificación. Solo usuarios
+autentificados pueden acceder a este endpoint.
+
+La app ecommerce se construye con un endpoint **item** y otro **order**. Los
+usuarios podrán recuperar elementos de la base de datos, hacer un pedido y
+recuperar la información del pedido.
+
+Se necesitan modelos, enrutadores, serializadores y vistas. (models, routers,
+serializers & view/sets api/view).
+
+Creación de [modelos](./backend/ecommerce/models.py) Item y Order. Creación
+de [serializers](./backend/ecommerce/serializers.py).
+
+Registro de app en el panel de [administración](./backend/ecommerce/admin.py).
+
+Migraciones `./manage.py makemigrations` y `./manage.py migrate`.
+
