@@ -7,7 +7,7 @@
 - Python (>=3.10)
 - Django
 
-Optional:
+<details><summary markdown="span">Opcionales</summary>
 
 - PyYAML, uritemplate: Schema generation support.
 - Markdown: Markdown support for the browsable API.
@@ -15,25 +15,19 @@ Optional:
 - django-filter: Filtering support.
 - django-guardian: Object level permissions support.
 
-**En entorno virtual**
-
-```py
-pip install djangorestframework
-```
+</details></br>
 
 ### Instalacion
 
+Instalar [requerimientos](./requirements.txt) **en entorno virtual**
+
 ```py
-pip install django-extensions djangorestframework djangorestframework-jsonapi \
-inflection python-dotenv sqlparse
+pip install -r requirements.txt
 ```
 
 Django utiliza SQLite3 por defecto para simplificar el desarrolo, en este proyecto
-se utliza MariaDB, pero es opcional.
-
-```py
-pip install mysqlclient
-```
+se utliza MariaDB, pero es opcional. Si no requiere sacarlo de
+[requirements.txt](./requirements.txt) o desinstalarlo `pip uninstall mysqlclient`
 
 ## Inicio del proyecto
 
@@ -77,6 +71,7 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 ```
 
 Añadir aplicaciones
+
 ```py
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -90,7 +85,6 @@ INSTALLED_APPS = [
     'rest_framework', # <---
     'core', # <---
 ]
-
 ```
 
 Añadir variables del framework REST al final del arhivo.
@@ -225,6 +219,7 @@ Crear las migraciones y migrar.
 ./manage.py makemigrations
 ./manage.py migrate
 ```
+
 Finalmente, crear **super usuario**.
 
 ```py
@@ -247,6 +242,8 @@ o **HTTPie**
 http post http://127.0.0.1:8000/contact/ name="DevFzn" message="prueba" \
           email="devfzn@mail.com"
 ```
+
+<details><summary markdown="span">httpie output</summary>
 
 ```http
 HTTP/1.1 200 OK
@@ -274,7 +271,9 @@ X-Frame-Options: DENY
 }
 ```
 
-Se puede utilizar la shell de Django para chequear la nueva entrada en Contacto
+</details>
+
+Se puede utilizar la shell de Django para chequear la nueva entrada en Contact
 
 `./manage.py shell`
 
@@ -305,6 +304,8 @@ Utilizando las clases `APIClient` que proporciona un cliente incorporado y
 
 Correr test `./manage.py test`
 
+<details><summary markdown="span">tests output</summary>
+
 ```py
 Found 8 test(s).
 Creating test database for alias 'default'...
@@ -316,6 +317,8 @@ Ran 8 tests in 0.028s
 OK
 Destroying test database for alias 'default'...
 ```
+
+</details>
 
 ## Ecommerce endpoint
 
@@ -449,6 +452,8 @@ http post http://127.0.0.1:8000/api-token-auth/ username=<tu-usuario> \
                                                 password=<tu-password>
 ```
 
+<details><summary markdown="span">httpie output</summary>
+
 ```http
 HTTP/1.1 200 OK
 Allow: POST, OPTIONS
@@ -465,6 +470,8 @@ X-Frame-Options: DENY
     "token": "2f076a6310a244283c6902a73e07a0febc59649c"
 }
 ```
+
+</details>
 
 ### Ecommerce Model
 
@@ -522,6 +529,8 @@ Creación de [test](./backend/ecommerce/tests.py) unitarios para la aplicación.
 
 Correr tests `./manage.py test`.
 
+<details><summary markdown="span">tests output</summary>
+
 ```py
 Found 18 test(s).
 Creating test database for alias 'default'...
@@ -534,9 +543,15 @@ OK
 Destroying test database for alias 'default'...
 ```
 
+</details>
+
+</br>
+
+[Bash script](./api_calls.sh) con llamadas a la API utilizando curl
+
 ----
 
-### Jerarquia de directorios
+<details><summary markdown="span">Jerarquía de directorios</summary>
 
 ```txt
 📂️ .
@@ -576,7 +591,10 @@ Destroying test database for alias 'default'...
 │   ├── .env
 │   └── manage.py
 ├── .gitignore
+├── api_calls.sh
 ├── env.template
 ├── README.md
 └── requirements.txt
 ```
+
+</details>
