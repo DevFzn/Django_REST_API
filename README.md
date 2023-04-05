@@ -17,11 +17,11 @@
 
 </details></br>
 
-### Instalacion
+### Instalación
 
 Instalar [requerimientos](./requirements.txt) **en entorno virtual**
 
-```py
+```sh
 pip install -r requirements.txt
 ```
 
@@ -40,9 +40,9 @@ django-admin startproject drf_course backend
 
 Este proyecto consta de 2 aplicaciones.
 
-La primera es el núcleo. Esta contendrá la lógica del contacto con el *endpoint*.
-La segunda será *ecommerce*. Esta contendrá la ĺógica del endpoint de los
-*items* y ordenes.
+La primera es el núcleo. Esta contendrá la lógica de **contacto** con el endpoint.
+La segunda será **ecommerce**. Esta contendrá la ĺógica del endpoint de los
+*items* y *ordenes*.
 
 ```sh
 cd backend
@@ -215,14 +215,14 @@ Importar modelo y registrar en [./backend/core/admin.py](./backend/core/admin.py
 
 Crear las migraciones y migrar.
 
-```py
+```sh
 ./manage.py makemigrations
 ./manage.py migrate
 ```
 
 Finalmente, crear **super usuario**.
 
-```py
+```sh
 ./manage.py createsuperuser
 ```
 
@@ -231,7 +231,7 @@ Finalmente, crear **super usuario**.
 **curl**
 
 ```sh
-curl -XPOST -H "Content-type: application/json" \
+curl -X POST -H "Content-type: application/json" \
     -d '{"name": "DevFzn", "message": "prueba", "email":"mail@mail.com"}' \
     'http://127.0.0.1:8000/contact/'
 ```
